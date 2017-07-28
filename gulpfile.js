@@ -1,5 +1,5 @@
 
 
-var bitcoreTasks = require('bitcore-build');
+var gltcoreTasks = require('gltcore-build');
 
-bitcoreTasks('lib');
+gltcoreTasks('lib');

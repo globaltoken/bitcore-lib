@@ -1,14 +1,14 @@
 'use strict';
 
 var should = require('chai').should();
-var bitcore = require('../..');
-var Interpreter = bitcore.Script.Interpreter;
-var Transaction = bitcore.Transaction;
-var PrivateKey = bitcore.PrivateKey;
-var Script = bitcore.Script;
-var BN = bitcore.crypto.BN;
-var BufferWriter = bitcore.encoding.BufferWriter;
-var Opcode = bitcore.Opcode;
+var gltcore = require('../..');
+var Interpreter = gltcore.Script.Interpreter;
+var Transaction = gltcore.Transaction;
+var PrivateKey = gltcore.PrivateKey;
+var Script = gltcore.Script;
+var BN = gltcore.crypto.BN;
+var BufferWriter = gltcore.encoding.BufferWriter;
+var Opcode = gltcore.Opcode;
 var _ = require('lodash');
 
 var script_valid = require('../data/bitcoind/script_valid');

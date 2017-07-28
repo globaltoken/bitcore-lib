@@ -3139,22 +3139,22 @@ var traverseRoot = function(parent, errorsDefinition) {
 };
 
 
-var bitcore = {};
-bitcore.Error = function() {
+var gltcore = {};
+gltcore.Error = function() {
   this.message = 'Internal error';
   this.stack = this.message + '\n' + (new Error()).stack;
 };
-bitcore.Error.prototype = Object.create(Error.prototype);
-bitcore.Error.prototype.name = 'bitcore.Error';
+gltcore.Error.prototype = Object.create(Error.prototype);
+gltcore.Error.prototype.name = 'gltcore.Error';
 
 
 var data = require('./spec');
-traverseRoot(bitcore.Error, data);
+traverseRoot(gltcore.Error, data);
 
-module.exports = bitcore.Error;
+module.exports = gltcore.Error;
 
 module.exports.extend = function(spec) {
-  return traverseNode(bitcore.Error, spec);
+  return traverseNode(gltcore.Error, spec);
 };
 
 },{"./spec":18,"lodash":298}],18:[function(require,module,exports){
@@ -3757,7 +3757,7 @@ HDPrivateKey.fromSeed = function(hexa, network) {
   if (hexa.length > MAXIMUM_ENTROPY_BITS * BITS_TO_BYTES) {
     throw new hdErrors.InvalidEntropyArgument.TooMuchEntropy(hexa);
   }
-  var hash = Hash.sha512hmac(hexa, new buffer.Buffer('Bitcoin seed'));
+  var hash = Hash.sha512hmac(hexa, new buffer.Buffer('Globaltoken seed'));
 
   return new HDPrivateKey({
     network: Network.get(network) || Network.defaultNetwork,
@@ -4002,9 +4002,9 @@ var Network = require('./networks');
 var Point = require('./crypto/point');
 var PublicKey = require('./publickey');
 
-var bitcoreErrors = require('./errors');
-var errors = bitcoreErrors;
-var hdErrors = bitcoreErrors.HDPublicKey;
+var gltcoreErrors = require('./errors');
+var errors = gltcoreErrors;
+var hdErrors = gltcoreErrors.HDPublicKey;
 var assert = require('assert');
 
 var JSUtil = require('./util/js');
@@ -4618,20 +4618,17 @@ function removeNetwork(network) {
 addNetwork({
   name: 'livenet',
   alias: 'mainnet',
-  pubkeyhash: 0x00,
-  privatekey: 0x80,
+  pubkeyhash: 0x26,
+  privatekey: 0xa6,
   scripthash: 0x05,
   xpubkey: 0x0488b21e,
   xprivkey: 0x0488ade4,
-  networkMagic: 0xf9beb4d9,
-  port: 8333,
+  networkMagic: 0xc708d32d,
+  port: 9319,
   dnsSeeds: [
-    'seed.bitcoin.sipa.be',
-    'dnsseed.bluematt.me',
-    'dnsseed.bitcoin.dashjr.org',
-    'seed.bitcoinstats.com',
-    'seed.bitnodes.io',
-    'bitseed.xf2.org'
+    'api.globaltoken.org',
+    'coinminers.net',
+    'lameserver.de'
   ]
 });
 
@@ -4660,13 +4657,10 @@ var testnet = get('testnet');
 // Add configurable values for testnet/regtest
 
 var TESTNET = {
-  PORT: 18333,
-  NETWORK_MAGIC: BufferUtil.integerAsBuffer(0x0b110907),
+  PORT: 19319,
+  NETWORK_MAGIC: BufferUtil.integerAsBuffer(0x3a6f375b),
   DNS_SEEDS: [
-    'testnet-seed.bitcoin.petertodd.org',
-    'testnet-seed.bluematt.me',
-    'testnet-seed.alexykot.me',
-    'testnet-seed.bitcoin.schildbach.de'
+    'api.globaltoken.org'
   ]
 };
 
@@ -4678,7 +4672,7 @@ for (var key in TESTNET) {
 
 var REGTEST = {
   PORT: 18444,
-  NETWORK_MAGIC: BufferUtil.integerAsBuffer(0xfabfb5da),
+  NETWORK_MAGIC: BufferUtil.integerAsBuffer(0x147669d6),
   DNS_SEEDS: []
 };
 
@@ -9432,7 +9426,7 @@ Transaction.DUST_AMOUNT = 546;
 Transaction.FEE_SECURITY_MARGIN = 150;
 
 // max amount of satoshis in circulation
-Transaction.MAX_MONEY = 21000000 * 1e8;
+Transaction.MAX_MONEY = 168000000 * 1e8;
 
 // nlocktime limit to be considered block height rather than a timestamp
 Transaction.NLOCKTIME_BLOCKHEIGHT_LIMIT = 5e8;
@@ -9550,7 +9544,7 @@ Transaction.prototype.invalidSatoshis = function() {
  * broadcast this transaction.
  *
  * @param {Object} opts allows to skip certain tests. {@see Transaction#serialize}
- * @return {bitcore.Error}
+ * @return {gltcore.Error}
  */
 Transaction.prototype.getSerializationError = function(opts) {
   opts = opts || {};
@@ -9860,7 +9854,7 @@ Transaction.prototype._newTransaction = function() {
  * to add an input, for more control, use @{link Transaction#addInput}.
  *
  * Can receive, as output information, the output of bitcoind's `listunspent` command,
- * and a slightly fancier format recognized by bitcore:
+ * and a slightly fancier format recognized by gltcore:
  *
  * ```
  * {
@@ -9871,8 +9865,8 @@ Transaction.prototype._newTransaction = function() {
  *  satoshis: 1020000
  * }
  * ```
- * Where `address` can be either a string or a bitcore Address object. The
- * same is true for `script`, which can be a string or a bitcore Script.
+ * Where `address` can be either a string or a gltcore Address object. The
+ * same is true for `script`, which can be a string or a gltcore Script.
  *
  * Beware that this resets all the signatures for inputs (in further versions,
  * SIGHASH_SINGLE or SIGHASH_NONE signatures will not be reset).
@@ -10704,23 +10698,23 @@ var errors = require('./errors');
 var $ = require('./util/preconditions');
 
 var UNITS = {
-  'BTC'      : [1e8, 8],
-  'mBTC'     : [1e5, 5],
-  'uBTC'     : [1e2, 2],
+  'GLT'      : [1e8, 8],
+  'mGLT'     : [1e5, 5],
+  'uGLT'     : [1e2, 2],
   'bits'     : [1e2, 2],
   'satoshis' : [1, 0]
 };
 
 /**
  * Utility for handling and converting bitcoins units. The supported units are
- * BTC, mBTC, bits (also named uBTC) and satoshis. A unit instance can be created with an
- * amount and a unit code, or alternatively using static methods like {fromBTC}.
+ * GLT, mGLT, bits (also named uGLT) and satoshis. A unit instance can be created with an
+ * amount and a unit code, or alternatively using static methods like {fromGLT}.
  * It also allows to be created from a fiat amount and the exchange rate, or
  * alternatively using the {fromFiat} static method.
  * You can consult for different representation of a unit instance using it's
  * {to} method, the fixed unit methods like {toSatoshis} or alternatively using
  * the unit accessors. It also can be converted to a fiat amount by providing the
- * corresponding BTC/fiat exchange rate.
+ * corresponding GLT/fiat exchange rate.
  *
  * @example
  * ```javascript
@@ -11143,7 +11137,7 @@ URI.prototype.toString = function() {
   _.extend(query, this.extras);
 
   return URL.format({
-    protocol: 'bitcoin:',
+    protocol: 'globaltoken:',
     host: this.address,
     query: query
   });
@@ -52148,9 +52142,9 @@ if (typeof Object.create === 'function') {
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],299:[function(require,module,exports){
 module.exports={
-  "name": "bitcore-lib",
+  "name": "gltcore-lib",
   "version": "0.13.19",
-  "description": "A pure and powerful JavaScript Bitcoin library.",
+  "description": "A pure and powerful JavaScript Globaltoken library.",
   "author": "BitPay <dev@bitpay.com>",
   "main": "index.js",
   "scripts": {
@@ -52206,7 +52200,7 @@ module.exports={
     }
   ],
   "keywords": [
-    "bitcoin",
+    "globaltoken",
     "transaction",
     "address",
     "p2p",
@@ -52223,7 +52217,7 @@ module.exports={
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/bitpay/bitcore-lib.git"
+    "url": "https://github.com/globaltoken/gltcore-lib.git"
   },
   "browser": {
     "request": "browser-request"
@@ -52237,7 +52231,7 @@ module.exports={
     "lodash": "=3.10.1"
   },
   "devDependencies": {
-    "bitcore-build": "bitpay/bitcore-build",
+    "gltcore-build": "bitpay/gltcore-build",
     "brfs": "^1.2.0",
     "chai": "^1.10.0",
     "gulp": "^3.8.10",
@@ -52246,77 +52240,77 @@ module.exports={
   "license": "MIT"
 }
 
-},{}],"bitcore-lib":[function(require,module,exports){
+},{}],"gltcore-lib":[function(require,module,exports){
 (function (global,Buffer){
 'use strict';
 
-var bitcore = module.exports;
+var gltcore = module.exports;
 
 // module information
-bitcore.version = 'v' + require('./package.json').version;
-bitcore.versionGuard = function(version) {
+gltcore.version = 'v' + require('./package.json').version;
+gltcore.versionGuard = function(version) {
   if (version !== undefined) {
-    var message = 'More than one instance of bitcore-lib found. ' +
-      'Please make sure to require bitcore-lib and check that submodules do' +
-      ' not also include their own bitcore-lib dependency.';
+    var message = 'More than one instance of gltcore-lib found. ' +
+      'Please make sure to require gltcore-lib and check that submodules do' +
+      ' not also include their own gltcore-lib dependency.';
     throw new Error(message);
   }
 };
-bitcore.versionGuard(global._bitcore);
-global._bitcore = bitcore.version;
+gltcore.versionGuard(global._gltcore);
+global._gltcore = gltcore.version;
 
 // crypto
-bitcore.crypto = {};
-bitcore.crypto.BN = require('./lib/crypto/bn');
-bitcore.crypto.ECDSA = require('./lib/crypto/ecdsa');
-bitcore.crypto.Hash = require('./lib/crypto/hash');
-bitcore.crypto.Random = require('./lib/crypto/random');
-bitcore.crypto.Point = require('./lib/crypto/point');
-bitcore.crypto.Signature = require('./lib/crypto/signature');
+gltcore.crypto = {};
+gltcore.crypto.BN = require('./lib/crypto/bn');
+gltcore.crypto.ECDSA = require('./lib/crypto/ecdsa');
+gltcore.crypto.Hash = require('./lib/crypto/hash');
+gltcore.crypto.Random = require('./lib/crypto/random');
+gltcore.crypto.Point = require('./lib/crypto/point');
+gltcore.crypto.Signature = require('./lib/crypto/signature');
 
 // encoding
-bitcore.encoding = {};
-bitcore.encoding.Base58 = require('./lib/encoding/base58');
-bitcore.encoding.Base58Check = require('./lib/encoding/base58check');
-bitcore.encoding.BufferReader = require('./lib/encoding/bufferreader');
-bitcore.encoding.BufferWriter = require('./lib/encoding/bufferwriter');
-bitcore.encoding.Varint = require('./lib/encoding/varint');
+gltcore.encoding = {};
+gltcore.encoding.Base58 = require('./lib/encoding/base58');
+gltcore.encoding.Base58Check = require('./lib/encoding/base58check');
+gltcore.encoding.BufferReader = require('./lib/encoding/bufferreader');
+gltcore.encoding.BufferWriter = require('./lib/encoding/bufferwriter');
+gltcore.encoding.Varint = require('./lib/encoding/varint');
 
 // utilities
-bitcore.util = {};
-bitcore.util.buffer = require('./lib/util/buffer');
-bitcore.util.js = require('./lib/util/js');
-bitcore.util.preconditions = require('./lib/util/preconditions');
+gltcore.util = {};
+gltcore.util.buffer = require('./lib/util/buffer');
+gltcore.util.js = require('./lib/util/js');
+gltcore.util.preconditions = require('./lib/util/preconditions');
 
 // errors thrown by the library
-bitcore.errors = require('./lib/errors');
+gltcore.errors = require('./lib/errors');
 
 // main bitcoin library
-bitcore.Address = require('./lib/address');
-bitcore.Block = require('./lib/block');
-bitcore.MerkleBlock = require('./lib/block/merkleblock');
-bitcore.BlockHeader = require('./lib/block/blockheader');
-bitcore.HDPrivateKey = require('./lib/hdprivatekey.js');
-bitcore.HDPublicKey = require('./lib/hdpublickey.js');
-bitcore.Networks = require('./lib/networks');
-bitcore.Opcode = require('./lib/opcode');
-bitcore.PrivateKey = require('./lib/privatekey');
-bitcore.PublicKey = require('./lib/publickey');
-bitcore.Script = require('./lib/script');
-bitcore.Transaction = require('./lib/transaction');
-bitcore.URI = require('./lib/uri');
-bitcore.Unit = require('./lib/unit');
+gltcore.Address = require('./lib/address');
+gltcore.Block = require('./lib/block');
+gltcore.MerkleBlock = require('./lib/block/merkleblock');
+gltcore.BlockHeader = require('./lib/block/blockheader');
+gltcore.HDPrivateKey = require('./lib/hdprivatekey.js');
+gltcore.HDPublicKey = require('./lib/hdpublickey.js');
+gltcore.Networks = require('./lib/networks');
+gltcore.Opcode = require('./lib/opcode');
+gltcore.PrivateKey = require('./lib/privatekey');
+gltcore.PublicKey = require('./lib/publickey');
+gltcore.Script = require('./lib/script');
+gltcore.Transaction = require('./lib/transaction');
+gltcore.URI = require('./lib/uri');
+gltcore.Unit = require('./lib/unit');
 
 // dependencies, subject to change
-bitcore.deps = {};
-bitcore.deps.bnjs = require('bn.js');
-bitcore.deps.bs58 = require('bs58');
-bitcore.deps.Buffer = Buffer;
-bitcore.deps.elliptic = require('elliptic');
-bitcore.deps._ = require('lodash');
+gltcore.deps = {};
+gltcore.deps.bnjs = require('bn.js');
+gltcore.deps.bs58 = require('bs58');
+gltcore.deps.Buffer = Buffer;
+gltcore.deps.elliptic = require('elliptic');
+gltcore.deps._ = require('lodash');
 
 // Internal usage, exposed for testing/advanced tweaking
-bitcore.Transaction.sighash = require('./lib/transaction/sighash');
+gltcore.Transaction.sighash = require('./lib/transaction/sighash');
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer)
 },{"./lib/address":1,"./lib/block":4,"./lib/block/blockheader":3,"./lib/block/merkleblock":5,"./lib/crypto/bn":6,"./lib/crypto/ecdsa":7,"./lib/crypto/hash":8,"./lib/crypto/point":9,"./lib/crypto/random":10,"./lib/crypto/signature":11,"./lib/encoding/base58":12,"./lib/encoding/base58check":13,"./lib/encoding/bufferreader":14,"./lib/encoding/bufferwriter":15,"./lib/encoding/varint":16,"./lib/errors":17,"./lib/hdprivatekey.js":19,"./lib/hdpublickey.js":20,"./lib/networks":21,"./lib/opcode":22,"./lib/privatekey":23,"./lib/publickey":24,"./lib/script":25,"./lib/transaction":28,"./lib/transaction/sighash":36,"./lib/unit":40,"./lib/uri":41,"./lib/util/buffer":42,"./lib/util/js":43,"./lib/util/preconditions":44,"./package.json":299,"bn.js":273,"bs58":274,"buffer":47,"elliptic":276,"lodash":298}]},{},[]);
